@@ -72,6 +72,7 @@ describe('Weather component', () => {
                     expect(fixture.find('p.title').text()).toBe('Selected location city 3')
                     expect(fixture.find('div.location')).toHaveLength(0)
                     expect(fixture.find('input').prop('value')).toBe('')
+                    expect(fixture.find('div.loading').text()).toBe('Loading...')
                 })
 
                 it('should make a request for a weather forecast', () => {
@@ -93,6 +94,7 @@ describe('Weather component', () => {
                     })
 
                     it('should render weather forecast', () => {
+                        expect(fixture.find('div.loading').exists()).toBe(false)
                         expect(fixture.find(Forecast).map(e => e.props())).toEqual(forecast)
                     })
                 })

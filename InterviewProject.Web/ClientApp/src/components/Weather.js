@@ -11,7 +11,7 @@ export class Weather extends Component {
   }
 
   render() {
-    const { selectedLocation, searchLocation, searchResults, forecast } = this.state
+    const { selectedLocation, searchLocation, searchResults, forecast, loading } = this.state
 
     return (
       <div>
@@ -23,7 +23,9 @@ export class Weather extends Component {
             searchResults.map(l => <div key={l.id} className="location" onClick={() => { this.selectLocation(l) }}>{l.title}</div>) :
             <div className="empty">No results found</div>
           )}
-        {forecast.map((f, i) => <Forecast key={i} {...f} />)}
+        {loading ?
+          <div className="loading">Loading...</div> :
+          forecast.map(f => <Forecast key={selectedLocation.id + f.date} {...f} />)}
       </div>
     )
   }
@@ -49,11 +51,15 @@ export class Weather extends Component {
     this.setState({
       searchLocation: '',
       searchResults: undefined,
-      selectedLocation: location
+      selectedLocation: location,
+      loading: true
     })
 
     const response = await fetch(`/api/forecast/${location.id}`)
     response.json()
-      .then(forecast => this.setState({ forecast }))
+      .then(forecast => this.setState({
+        forecast,
+        loading: false
+      }))
   }
 }
