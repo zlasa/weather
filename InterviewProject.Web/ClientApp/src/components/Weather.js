@@ -1,15 +1,17 @@
 import React, { Component } from 'react'
 
+import { Forecast } from './Forecast'
+
 export class Weather extends Component {
   static displayName = Weather.name
 
   constructor(props) {
     super(props)
-    this.state = { searchLocation: '' }
+    this.state = { forecast: [], searchLocation: '' }
   }
 
   render() {
-    const { selectedLocation, searchLocation, searchResults } = this.state
+    const { selectedLocation, searchLocation, searchResults, forecast } = this.state
 
     return (
       <div>
@@ -18,9 +20,10 @@ export class Weather extends Component {
         <input placeholder="Search for a location" value={searchLocation} onChange={this.onSearchLocationChange} />
         {searchResults !== undefined &&
           (searchResults.length ?
-            searchResults.map(l => <div key={l.woeid} className="location" onClick={() => { this.selectLocation(l) }}>{l.title}</div>) :
+            searchResults.map(l => <div key={l.id} className="location" onClick={() => { this.selectLocation(l) }}>{l.title}</div>) :
             <div className="empty">No results found</div>
           )}
+        {forecast.map((f, i) => <Forecast key={i} {...f} />)}
       </div>
     )
   }
@@ -42,11 +45,15 @@ export class Weather extends Component {
       .then(searchResults => this.setState({ searchResults }))
   }
 
-  selectLocation = (location) => {
+  selectLocation = async (location) => {
     this.setState({
       searchLocation: '',
       searchResults: undefined,
       selectedLocation: location
     })
+
+    const response = await fetch(`/api/forecast/${location.id}`)
+    response.json()
+      .then(forecast => this.setState({ forecast }))
   }
 }

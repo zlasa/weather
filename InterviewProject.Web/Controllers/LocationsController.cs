@@ -12,9 +12,9 @@ namespace InterviewProject.Controllers
     {
         private readonly WeatherClient _weatherClient;
 
-        private readonly ILogger<WeatherForecastController> _logger;
+        private readonly ILogger<LocationsController> _logger;
 
-        public LocationsController(WeatherClient weatherClient, ILogger<WeatherForecastController> logger)
+        public LocationsController(WeatherClient weatherClient, ILogger<LocationsController> logger)
         {
             _weatherClient = weatherClient;
             _logger = logger;

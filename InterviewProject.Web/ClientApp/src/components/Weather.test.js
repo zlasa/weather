@@ -2,12 +2,15 @@ import React from 'react'
 import { shallow } from 'enzyme'
 
 import { Weather } from './Weather'
+import { Forecast } from './Forecast'
 
 describe('Weather component', () => {
     let fixture
+    let fetchResolve
 
     beforeEach(() => {
         fixture = shallow(<Weather />)
+        fetch = jest.fn(() => new Promise(r => fetchResolve = r))
     })
 
     it('renders controls', () => {
@@ -21,11 +24,8 @@ describe('Weather component', () => {
 
     describe('typing into search box', () => {
 
-        let fetchResolve
-
         beforeEach(() => {
             jest.useFakeTimers()
-            fetch = jest.fn(() => new Promise(r => fetchResolve = r))
             fixture.find('input').simulate('change', { target: { value: 'Ab' } })
             jest.runAllTimers()
         })
@@ -48,11 +48,11 @@ describe('Weather component', () => {
             })
         })
 
-        describe('successful response', () => {
+        describe('when successful response', () => {
             beforeEach(() => {
                 const locations = [
-                    { woeid: 'id1', title: 'city 1' },
-                    { woeid: 'id2', title: 'city 3' }
+                    { id: 'id1', title: 'city 1' },
+                    { id: 'id2', title: 'city 3' }
                 ]
                 fetchResolve(new Response(JSON.stringify(locations)))
             })
@@ -62,14 +62,39 @@ describe('Weather component', () => {
             })
 
             describe('selecting a location', () => {
+
                 beforeEach(() => {
                     fixture.find('div.location').at(1).simulate('click')
+                    jest.runAllTimers()
                 })
 
                 it('should update title and clear locations list and input', () => {
                     expect(fixture.find('p.title').text()).toBe('Selected location city 3')
                     expect(fixture.find('div.location')).toHaveLength(0)
                     expect(fixture.find('input').prop('value')).toBe('')
+                })
+
+                it('should make a request for a weather forecast', () => {
+                    expect(fetch).toHaveBeenCalledTimes(2)
+                    expect(fetch).toHaveBeenLastCalledWith("/api/forecast/id2")
+                })
+
+                describe('when successful response', () => {
+
+                    let forecast
+
+                    beforeEach(() => {
+                        forecast = [
+                            { date: '2020-01-01', summary: 'Hail', temp: 3 },
+                            { date: '2020-01-02', summary: 'Snow', temp: -5 },
+                            { date: '2020-01-03', summary: 'Heavy Rain', temp: 15 }
+                        ]
+                        fetchResolve(new Response(JSON.stringify(forecast)))
+                    })
+
+                    it('should render weather forecast', () => {
+                        expect(fixture.find(Forecast).map(e => e.props())).toEqual(forecast)
+                    })
                 })
             })
         })
