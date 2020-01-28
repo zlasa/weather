@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using InterviewProject.App;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -23,8 +24,9 @@ namespace InterviewProject.Controllers
         public async Task<IActionResult> Get([FromQuery] string search)
         {
             var locations = await _weatherClient.SearchLocationsAsync(search);
-            _logger.LogInformation($"Returning {locations.Length} locations for search string '{search}'");
-            return Ok(locations);
+            var result = locations.Take(5).ToArray();
+            _logger.LogInformation($"Returning {result.Length}/{locations.Length} locations for search string '{search}'");
+            return Ok(result);
         }
     }
 }

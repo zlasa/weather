@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
@@ -61,6 +62,37 @@ namespace InterviewProject.Tests
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var locations = await response.Content.ReadAsAsync<Location[]>();
             locations.Should().BeEquivalentTo(new Location("id1", "city 1"), new Location("id2", "city 3"));
+
+            actualMessage.Method.Should().Be(HttpMethod.Get);
+            actualMessage.RequestUri.Should().Be("http://weather.api/api/location/search/?query=blah");
+        }
+
+        [Fact]
+        public async Task Get_WhenMoreThan5ResultsAvailable_ShouldReturnFirst5Only()
+        {
+            // Setup
+            var jLocations = Enumerable.Range(0, 7).Select(i => new JObject
+            {
+                ["woeid"] = $"id{i}",
+                ["title"] = $"city {i}"
+            }).ToArray();
+            var jWeatherApiResponse = new JArray(jLocations);
+
+            HttpRequestMessage actualMessage = null;
+            _mockHttpMessageHandler.Protected().Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+                .Callback<HttpRequestMessage, CancellationToken>((m, t) => actualMessage = m)
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new JSONContent(jWeatherApiResponse)
+                });
+
+            // Execute
+            var response = await Client.GetAsync("/api/locations?search=blah");
+
+            // Verify
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            var locations = await response.Content.ReadAsAsync<Location[]>();
+            locations.Should().BeEquivalentTo(Enumerable.Range(0, 5).Select(i => new Location($"id{i}", $"city {i}")));
 
             actualMessage.Method.Should().Be(HttpMethod.Get);
             actualMessage.RequestUri.Should().Be("http://weather.api/api/location/search/?query=blah");
