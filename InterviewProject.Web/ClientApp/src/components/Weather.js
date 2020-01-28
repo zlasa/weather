@@ -1,59 +1,52 @@
-import React, { Component } from 'react';
+import React, { Component } from 'react'
 
 export class Weather extends Component {
-  static displayName = Weather.name;
+  static displayName = Weather.name
 
   constructor(props) {
-    super(props);
-    this.state = { forecasts: [], loading: true };
-  }
-
-  componentDidMount() {
-    this.populateWeatherData();
-  }
-
-  static renderForecastsTable(forecasts) {
-    return (
-      <table className='table table-striped' aria-labelledby="tabelLabel">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Temp. (C)</th>
-            <th>Temp. (F)</th>
-            <th>Summary</th>
-          </tr>
-        </thead>
-        <tbody>
-          {forecasts.map(forecast =>
-            <tr key={forecast.date}>
-              <td>{forecast.date}</td>
-              <td>{forecast.temperatureC}</td>
-              <td>{forecast.temperatureF}</td>
-              <td>{forecast.summary}</td>
-            </tr>
-          )}
-        </tbody>
-      </table>
-    );
+    super(props)
+    this.state = { searchLocation: '' }
   }
 
   render() {
-    let contents = this.state.loading
-      ? <p><em>Loading...</em></p>
-      : Weather.renderForecastsTable(this.state.forecasts);
+    const { selectedLocation, searchLocation, searchResults } = this.state
 
     return (
       <div>
         <h1 id="tabelLabel" >Weather forecast</h1>
-        <p>This component demonstrates fetching data from the server.</p>
-        {contents}
+        <p className="title">{selectedLocation ? `Selected location ${selectedLocation.title}` : 'Please search for a location.'}</p>
+        <input placeholder="Search for a location" value={searchLocation} onChange={this.onSearchLocationChange} />
+        {searchResults !== undefined &&
+          (searchResults.length ?
+            searchResults.map(l => <div key={l.woeid} className="location" onClick={() => { this.selectLocation(l) }}>{l.title}</div>) :
+            <div className="empty">No results found</div>
+          )}
       </div>
-    );
+    )
   }
 
-  async populateWeatherData() {
-    const response = await fetch('weatherforecast');
-    const data = await response.json();
-    this.setState({ forecasts: data, loading: false });
+  onSearchLocationChange = (e) => {
+    const searchLocation = e.target.value
+    this.setState({
+      searchLocation
+    })
+    clearTimeout(this.searchDebounceTimeout)
+    this.searchDebounceTimeout = setTimeout(() => {
+      this.searchLocation(searchLocation)
+    }, 500)
+  }
+
+  searchLocation = async (input) => {
+    const response = await fetch(`/api/locations?search=${input}`)
+    response.json()
+      .then(searchResults => this.setState({ searchResults }))
+  }
+
+  selectLocation = (location) => {
+    this.setState({
+      searchLocation: '',
+      searchResults: undefined,
+      selectedLocation: location
+    })
   }
 }

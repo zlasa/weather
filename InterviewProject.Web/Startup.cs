@@ -1,8 +1,7 @@
-using System.IO;
+using System;
+using InterviewProject.App;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -22,6 +21,11 @@ namespace InterviewProject
         public void ConfigureServices(IServiceCollection services)
         {
 
+            services.AddHttpClient<WeatherClient>(client =>
+            {
+                var clientBaseAddress = Configuration["metaWeatherApi"];
+                client.BaseAddress = new Uri(clientBaseAddress);
+            });
             services.AddControllersWithViews();
 
             // In production, the React files will be served from this directory
@@ -64,7 +68,7 @@ namespace InterviewProject
 
                 if (env.IsDevelopment())
                 {
-                    spa.UseReactDevelopmentServer(npmScript: "start");
+                    spa.UseProxyToSpaDevelopmentServer("http://localhost:3000");
                 }
             });
         }
