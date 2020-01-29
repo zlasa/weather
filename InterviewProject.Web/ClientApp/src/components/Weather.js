@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 
 import { Forecast } from './Forecast'
 
+import './Weather.css'
+
 export class Weather extends Component {
   static displayName = Weather.name
 
@@ -14,18 +16,22 @@ export class Weather extends Component {
     const { selectedLocation, searchLocation, searchResults, forecast, loading } = this.state
 
     return (
-      <div>
+      <div className="weather-root">
         <h1 id="tabelLabel" >Weather forecast</h1>
         <p className="title">{selectedLocation ? `Selected location ${selectedLocation.title}` : 'Please search for a location.'}</p>
-        <input placeholder="Search for a location" value={searchLocation} onChange={this.onSearchLocationChange} />
-        {searchResults !== undefined &&
-          (searchResults.length ?
-            searchResults.map(l => <div key={l.id} className="location" onClick={() => { this.selectLocation(l) }}>{l.title}</div>) :
-            <div className="empty">No results found</div>
-          )}
-        {loading ?
-          <div className="loading">Loading...</div> :
-          forecast.map(f => <Forecast key={selectedLocation.id + f.date} {...f} />)}
+        <div className="location-panel">
+          <input placeholder="Search for a location" value={searchLocation} onChange={this.onSearchLocationChange} />
+          {searchResults !== undefined &&
+            (searchResults.length ?
+              searchResults.map(l => <div key={l.id} className="location" onClick={() => { this.selectLocation(l) }}>{l.title}</div>) :
+              <div className="empty">No results found</div>
+            )}
+        </div>
+        <div className="forecast-panel">
+          {loading ?
+            <div className="loading">Loading...</div> :
+            forecast.map(f => <Forecast key={selectedLocation.id + f.date} {...f} />)}
+        </div>
       </div>
     )
   }

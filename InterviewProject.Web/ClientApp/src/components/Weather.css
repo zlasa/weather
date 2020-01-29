@@ -1,0 +1,15 @@
+div.weather-root {
+    display: grid;
+}
+
+p.title {
+    grid-row: 2/3;
+}
+
+div.location-panel {
+    grid-area: 3/1/4/2;
+}
+
+div.forecast-panel {
+    grid-area: 3/2/4/3;
+}
