@@ -9,16 +9,22 @@ export class Weather extends Component {
 
   constructor(props) {
     super(props)
-    this.state = { forecast: [], searchLocation: '' }
+    this.state = { forecast: [], searchLocation: '', ciUnits: true }
   }
 
   render() {
-    const { selectedLocation, searchLocation, searchResults, forecast, loading } = this.state
+    const { selectedLocation, searchLocation, searchResults, forecast, loading, ciUnits } = this.state
 
     return (
       <div className="weather-root">
         <h1 id="tabelLabel" >Weather forecast</h1>
         <p className="title">{selectedLocation ? `Selected location ${selectedLocation.title}` : 'Please search for a location.'}</p>
+        <p className="units">
+          <span>Selected units: </span>
+          <span className={'unit ' + (ciUnits ? 'unit-active' : '')} onClick={() => this.setState({ ciUnits: true })}>°C</span>
+          <span> | </span>
+          <span className={'unit ' + (ciUnits ? '' : 'unit-active')} onClick={() => this.setState({ ciUnits: false })}>°F</span>
+        </p>
         <div className="location-panel">
           <input placeholder="Search for a location" value={searchLocation} onChange={this.onSearchLocationChange} />
           {searchResults !== undefined &&
@@ -30,7 +36,7 @@ export class Weather extends Component {
         <div className="forecast-panel">
           {loading ?
             <div className="loading">Loading...</div> :
-            forecast.map(f => <Forecast key={selectedLocation.id + f.date} {...f} />)}
+            forecast.map(f => <Forecast key={selectedLocation.id + f.date} {...f} ciUnits={ciUnits} />)}
         </div>
       </div>
     )

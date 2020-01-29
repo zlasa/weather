@@ -16,9 +16,21 @@ describe('Weather component', () => {
     it('renders controls', () => {
         expect(fixture.find('h1').text()).toBe('Weather forecast')
         expect(fixture.find('p.title').text()).toBe('Please search for a location.')
+        expect(fixture.find('p.units').text()).toBe('Selected units: °C | °F')
+        expect(fixture.find('p.units .unit-active').text()).toBe('°C')
         expect(fixture.find('input').props()).toMatchObject({
             placeholder: 'Search for a location',
             value: ''
+        })
+    })
+
+    describe('toggling units', () => {
+        beforeEach(() => {
+            fixture.find('p.units .unit').at(1).simulate('click')
+        })
+
+        it('should change units', () => {
+            expect(fixture.find('p.units .unit-active').text()).toBe('°F')
         })
     })
 
@@ -86,9 +98,9 @@ describe('Weather component', () => {
 
                     beforeEach(() => {
                         forecast = [
-                            { date: '2020-01-01', summary: 'Hail', temp: 3 },
-                            { date: '2020-01-02', summary: 'Snow', temp: -5 },
-                            { date: '2020-01-03', summary: 'Heavy Rain', temp: 15 }
+                            { date: '2020-01-01', summary: 'Hail', temp: 3, ciUnits: true },
+                            { date: '2020-01-02', summary: 'Snow', temp: -5, ciUnits: true },
+                            { date: '2020-01-03', summary: 'Heavy Rain', temp: 15, ciUnits: true }
                         ]
                         fetchResolve(new Response(JSON.stringify(forecast)))
                     })
@@ -96,6 +108,17 @@ describe('Weather component', () => {
                     it('should render weather forecast', () => {
                         expect(fixture.find('div.loading').exists()).toBe(false)
                         expect(fixture.find(Forecast).map(e => e.props())).toEqual(forecast)
+                    })
+
+                    describe('toggling units', () => {
+                        beforeEach(() => {
+                            fixture.find('p.units .unit').at(1).simulate('click')
+                        })
+
+                        it('should change units', () => {
+                            const expected = forecast.map(f => ({ ...f, ciUnits: false }))
+                            expect(fixture.find(Forecast).map(e => e.props())).toEqual(expected)
+                        })
                     })
                 })
             })

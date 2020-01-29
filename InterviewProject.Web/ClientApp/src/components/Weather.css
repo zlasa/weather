@@ -3,7 +3,11 @@ div.weather-root {
 }
 
 p.title {
-    grid-row: 2/3;
+    grid-area: 2/1/3/2;
+}
+
+p.units {
+    grid-area: 2/2/3/3;
 }
 
 div.location-panel {
@@ -12,4 +16,16 @@ div.location-panel {
 
 div.forecast-panel {
     grid-area: 3/2/4/3;
+}
+
+div.location {
+    cursor: pointer;
+}
+
+.unit {
+    cursor: pointer;
+}
+
+.unit-active {
+    font-weight: bold;
 }
