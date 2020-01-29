@@ -13,7 +13,7 @@ export class Weather extends Component {
   }
 
   render() {
-    const { selectedLocation, searchLocation, searchResults, forecast, loading, ciUnits } = this.state
+    const { selectedLocation, searchLocation, searchLocationInvalid, searchResults, forecast, loading, ciUnits } = this.state
 
     return (
       <div className="weather-root">
@@ -27,6 +27,7 @@ export class Weather extends Component {
         </p>
         <div className="location-panel">
           <input placeholder="Search for a location" value={searchLocation} onChange={this.onSearchLocationChange} />
+          {searchLocationInvalid && <div className="search-invalid">Provided input seems to be invalid. Try something else.</div>}
           {searchResults !== undefined &&
             (searchResults.length ?
               searchResults.map(l => <div key={l.id} className="location" onClick={() => { this.selectLocation(l) }}>{l.title}</div>) :
@@ -44,9 +45,17 @@ export class Weather extends Component {
 
   onSearchLocationChange = (e) => {
     const searchLocation = e.target.value
+
     this.setState({
-      searchLocation
+      searchLocation,
+      searchLocationInvalid: false
     })
+
+    if (searchLocation === undefined || searchLocation.length > 50) {
+      this.setState({ searchLocationInvalid: true })
+      return
+    }
+
     clearTimeout(this.searchDebounceTimeout)
     this.searchDebounceTimeout = setTimeout(() => {
       this.searchLocation(searchLocation)

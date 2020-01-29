@@ -34,6 +34,21 @@ describe('Weather component', () => {
         })
     })
 
+    describe('typing into search box long input', () => {
+
+        beforeEach(() => {
+            jest.useFakeTimers()
+            fixture.find('input').simulate('change', { target: { value: 'A'.repeat(100) } })
+            jest.runAllTimers()
+        })
+
+        it('should render typed text and send a request', () => {
+            expect(fixture.find('input').prop('value')).toBe('A'.repeat(100))
+            expect(fixture.find('div.search-invalid').text()).toBe('Provided input seems to be invalid. Try something else.')
+            expect(fetch).toHaveBeenCalledTimes(0)
+        })
+    })
+
     describe('typing into search box', () => {
 
         beforeEach(() => {
